@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Admin — KINVOS GROUP</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{ --ink:#12151C; --muted:#6B7280; --paper:#F6F7F9; --blue:#0B2F87; --green:#16C172; --border:#E5E7EB; }
+  *{box-sizing:border-box;}
+  body{margin:0; font-family:'Inter',sans-serif; background:var(--paper); color:var(--ink);}
+  .wrap{max-width:1180px; margin:0 auto; padding:28px 18px;}
+  h1{font-size:20px; margin:0 0 4px;}
+  .sub{color:var(--muted); font-size:13px; margin-bottom:22px;}
+  .login-box{max-width:340px; margin:80px auto; background:#fff; border:1px solid var(--border); border-radius:14px; padding:24px;}
+  .login-box input{width:100%; padding:11px 12px; border:1px solid var(--border); border-radius:8px; font-size:14px; margin:10px 0;}
+  .login-box button, .btn{background:var(--blue); color:#fff; border:none; border-radius:8px; padding:11px 16px; font-size:14px; font-weight:600; cursor:pointer;}
+  .err{color:#D92D20; font-size:13px; min-height:18px;}
+  table{width:100%; border-collapse:collapse; background:#fff; border-radius:12px; overflow:hidden; border:1px solid var(--border);}
+  th, td{text-align:left; padding:10px 12px; font-size:12.5px; border-bottom:1px solid var(--border); white-space:nowrap;}
+  th{background:#F0F1F4; font-weight:700; text-transform:uppercase; font-size:10.5px; letter-spacing:.04em; color:var(--muted);}
+  tbody tr:last-child td{border-bottom:none;}
+  .code{font-family:'JetBrains Mono',monospace; font-weight:600;}
+  .pill{display:inline-block; padding:2px 8px; border-radius:999px; font-size:10.5px; font-weight:700;}
+  .pill.test{background:#FEF3C7; color:#92400E;}
+  .pill.paye{background:#DCFCE7; color:#166534;}
+  .toolbar{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;}
+  .refresh{background:#fff; border:1px solid var(--border); border-radius:8px; padding:8px 14px; font-size:13px; cursor:pointer; width:auto; color:var(--ink); font-weight:600;}
+  .empty{color:var(--muted); font-size:13px; padding:30px; text-align:center; background:#fff; border-radius:12px; border:1px solid var(--border);}
+  .stat-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin-bottom:22px;}
+  .stat-card{background:#fff; border:1px solid var(--border); border-radius:12px; padding:16px;}
+  .stat-card b{display:block; font-size:22px; margin-bottom:2px;}
+  .stat-card span{font-size:11.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em;}
+  .tabs{display:flex; gap:8px; margin-bottom:16px; border-bottom:1px solid var(--border);}
+  .tab-btn{background:none; border:none; padding:10px 4px; margin-right:16px; font-size:13.5px; font-weight:600; color:var(--muted); cursor:pointer; border-bottom:2px solid transparent;}
+  .tab-btn.active{color:var(--blue); border-bottom-color:var(--blue);}
+  .filters{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px;}
+  .filters input, .filters select{padding:9px 12px; border:1px solid var(--border); border-radius:8px; font-size:13px; font-family:inherit; background:#fff;}
+  .filters input{flex:1; min-width:180px;}
+  .table-wrap{overflow-x:auto;}
+  .panel{display:none;} .panel.active{display:block;}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-box">
+    <h1>Espace admin</h1>
+    <p class="sub">KINVOS GROUP — gestion du hub</p>
+    <input type="password" id="pwd" placeholder="Mot de passe admin" autofocus>
+    <div class="err" id="login-err"></div>
+    <button style="width:100%;" onclick="seConnecter()">Se connecter</button>
+  </div>
+</div>
+
+<div id="dashboard" style="display:none;">
+  <div class="wrap">
+    <div class="toolbar">
+      <div>
+        <h1>Tableau de bord — KINVOS GROUP</h1>
+        <p class="sub">Vue d'ensemble des ventes, licences et comptes clients du Hub.</p>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button class="refresh" onclick="toutRecharger()">↻ Actualiser</button>
+        <button class="refresh" onclick="seDeconnecterAdmin()">Se déconnecter</button>
+      </div>
+    </div>
+
+    <div class="stat-grid" id="stat-grid"></div>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="licences" onclick="basculerOnglet('licences')">Licences / Ventes</button>
+      <button class="tab-btn" data-tab="comptes" onclick="basculerOnglet('comptes')">Comptes clients</button>
+    </div>
+
+    <div class="panel active" id="panel-licences">
+      <div class="filters">
+        <input id="f-recherche" placeholder="Rechercher un client, un téléphone, un code..." oninput="rafraichirTableauLicences()">
+        <select id="f-logiciel" onchange="rafraichirTableauLicences()"><option value="">Tous les logiciels</option></select>
+        <select id="f-statut" onchange="rafraichirTableauLicences()">
+          <option value="">Tous les statuts</option>
+          <option value="payé">Payé</option>
+          <option value="test">Test</option>
+        </select>
+      </div>
+      <div class="table-wrap" id="contenu-licences"><div class="empty">Chargement…</div></div>
+    </div>
+
+    <div class="panel" id="panel-comptes">
+      <div class="filters">
+        <input id="f-recherche-comptes" placeholder="Rechercher un compte (nom, téléphone)..." oninput="rafraichirTableauComptes()">
+      </div>
+      <div class="table-wrap" id="contenu-comptes"><div class="empty">Chargement…</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+let motDePasse = '';
+let toutesLicences = [];
+let tousComptes = [];
+
+async function seConnecter(){
+  const pwd = document.getElementById('pwd').value;
+  const errEl = document.getElementById('login-err');
+  errEl.textContent = '';
+  try{
+    const res = await fetch('/api/admin/verifier', { method:'POST', headers:{'X-Admin-Password': pwd} });
+    const data = await res.json();
+    if(!data.ok){ errEl.textContent = 'Mot de passe incorrect.'; return; }
+    motDePasse = pwd;
+    sessionStorage.setItem('kinvos_admin_pwd', pwd);
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    toutRecharger();
+  }catch(e){
+    errEl.textContent = "Erreur de connexion au serveur.";
+  }
+}
+
+function seDeconnecterAdmin(){
+  sessionStorage.removeItem('kinvos_admin_pwd');
+  motDePasse = '';
+  document.getElementById('login-screen').style.display = 'block';
+  document.getElementById('dashboard').style.display = 'none';
+}
+
+function basculerOnglet(tab){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+tab).classList.add('active');
+}
+
+async function toutRecharger(){
+  await Promise.all([chargerLicences(), chargerComptes()]);
+  calculerStats();
+}
+
+function gererSession401(res){
+  if(res.status === 401){
+    sessionStorage.removeItem('kinvos_admin_pwd');
+    document.getElementById('login-screen').style.display = 'block';
+    document.getElementById('dashboard').style.display = 'none';
+    return true;
+  }
+  return false;
+}
+
+async function chargerLicences(){
+  const contenu = document.getElementById('contenu-licences');
+  try{
+    const res = await fetch('/api/admin/licences', { headers:{'X-Admin-Password': motDePasse} });
+    if(gererSession401(res)) return;
+    const data = await res.json();
+    toutesLicences = data.licences || [];
+    // remplit le filtre logiciel avec les identifiants réellement présents
+    const select = document.getElementById('f-logiciel');
+    const valeurActuelle = select.value;
+    const logiciels = [...new Set(toutesLicences.map(l=>l.softwareId))].sort();
+    select.innerHTML = '<option value="">Tous les logiciels</option>' + logiciels.map(id=>`<option value="${id}">${id}</option>`).join('');
+    select.value = valeurActuelle;
+    rafraichirTableauLicences();
+  }catch(e){
+    contenu.innerHTML = '<div class="empty">Erreur de chargement.</div>';
+  }
+}
+
+function rafraichirTableauLicences(){
+  const contenu = document.getElementById('contenu-licences');
+  const recherche = (document.getElementById('f-recherche').value || '').toLowerCase();
+  const logicielFiltre = document.getElementById('f-logiciel').value;
+  const statutFiltre = document.getElementById('f-statut').value;
+
+  let liste = toutesLicences;
+  if(logicielFiltre) liste = liste.filter(l=>l.softwareId===logicielFiltre);
+  if(statutFiltre) liste = liste.filter(l=>l.statut===statutFiltre);
+  if(recherche) liste = liste.filter(l =>
+    (l.clientNom||'').toLowerCase().includes(recherche) ||
+    (l.clientTelephone||'').toLowerCase().includes(recherche) ||
+    (l.code||'').toLowerCase().includes(recherche) ||
+    (l.factureNumero||'').toLowerCase().includes(recherche)
+  );
+
+  if(toutesLicences.length === 0){
+    contenu.innerHTML = '<div class="empty">Aucune licence générée pour le moment.</div>';
+    return;
+  }
+  if(liste.length === 0){
+    contenu.innerHTML = '<div class="empty">Aucun résultat pour ces filtres.</div>';
+    return;
+  }
+  contenu.innerHTML = `<table><thead><tr>
+    <th>N° facture</th><th>Date</th><th>Logiciel</th><th>Formule</th><th>Montant</th><th>Code</th><th>Client</th><th>Statut</th>
+  </tr></thead><tbody>${liste.map(l => `
+    <tr>
+      <td class="code">${l.factureNumero || '—'}</td>
+      <td>${new Date(l.creeLe).toLocaleString('fr-FR')}</td>
+      <td>${l.softwareId}</td>
+      <td>${l.planId}</td>
+      <td>${l.prix != null ? l.prix.toLocaleString('fr-FR')+' FCFA' : '—'}</td>
+      <td class="code">${l.code}</td>
+      <td>${l.clientNom || '—'}${l.clientTelephone ? ' · '+l.clientTelephone : ''}</td>
+      <td><span class="pill ${l.statut==='payé'?'paye':'test'}">${l.statut}</span></td>
+    </tr>`).join('')}</tbody></table>`;
+}
+
+async function chargerComptes(){
+  const contenu = document.getElementById('contenu-comptes');
+  try{
+    const res = await fetch('/api/admin/comptes', { headers:{'X-Admin-Password': motDePasse} });
+    if(gererSession401(res)) return;
+    const data = await res.json();
+    tousComptes = data.comptes || [];
+    rafraichirTableauComptes();
+  }catch(e){
+    contenu.innerHTML = '<div class="empty">Erreur de chargement.</div>';
+  }
+}
+
+function rafraichirTableauComptes(){
+  const contenu = document.getElementById('contenu-comptes');
+  const recherche = (document.getElementById('f-recherche-comptes').value || '').toLowerCase();
+  let liste = tousComptes;
+  if(recherche) liste = liste.filter(c =>
+    (c.nom||'').toLowerCase().includes(recherche) || (c.telephone||'').toLowerCase().includes(recherche)
+  );
+
+  if(tousComptes.length === 0){
+    contenu.innerHTML = '<div class="empty">Aucun compte créé pour le moment.</div>';
+    return;
+  }
+  if(liste.length === 0){
+    contenu.innerHTML = '<div class="empty">Aucun résultat pour cette recherche.</div>';
+    return;
+  }
+  contenu.innerHTML = `<table><thead><tr>
+    <th>Créé le</th><th>Nom</th><th>Téléphone</th><th>Établissement</th><th>Logiciels achetés</th>
+  </tr></thead><tbody>${liste.map(c => `
+    <tr>
+      <td>${c.creeLe ? new Date(c.creeLe).toLocaleDateString('fr-FR') : '—'}</td>
+      <td>${c.nom || '—'}</td>
+      <td>${c.telephone || '—'}</td>
+      <td>${c.org || '—'}</td>
+      <td>${(c.purchases||[]).length}</td>
+    </tr>`).join('')}</tbody></table>`;
+}
+
+function calculerStats(){
+  const el = document.getElementById('stat-grid');
+  const nbLicences = toutesLicences.length;
+  const nbComptes = tousComptes.length;
+  const revenuTotal = toutesLicences.reduce((s,l)=>s+(l.prix||0), 0);
+  const debutMois = new Date(); debutMois.setDate(1); debutMois.setHours(0,0,0,0);
+  const ventesCeMois = toutesLicences.filter(l=>new Date(l.creeLe) >= debutMois).length;
+  el.innerHTML = `
+    <div class="stat-card"><b>${revenuTotal.toLocaleString('fr-FR')} FCFA</b><span>Revenu total</span></div>
+    <div class="stat-card"><b>${nbLicences}</b><span>Licences générées</span></div>
+    <div class="stat-card"><b>${nbComptes}</b><span>Comptes clients</span></div>
+    <div class="stat-card"><b>${ventesCeMois}</b><span>Ventes ce mois-ci</span></div>
+  `;
+}
+
+// Reprend la session si déjà connecté dans cet onglet
+const dejaConnecte = sessionStorage.getItem('kinvos_admin_pwd');
+if(dejaConnecte){
+  motDePasse = dejaConnecte;
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  toutRecharger();
+}
+</script>
+</body>
+</html>
