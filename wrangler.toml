@@ -1,4 +1,4 @@
-name = "kinvos-hub"
+1name = "kinvos-hub"
 main = "worker.js"
 compatibility_date = "2024-09-23"
 
@@ -10,24 +10,15 @@ directory = "./public"
 binding = "ASSETS"
 
 # Stockage des licences générées après achat (visible dans /admin).
-# Remplace "PLACEHOLDER_KV_ID" par l'ID réel après avoir créé le namespace :
-#   npx wrangler kv namespace create LICENCES
 [[kv_namespaces]]
 binding = "LICENCES"
-id = "PLACEHOLDER_KV_ID"
+id = "07b95af572d449d4afd0ae5d7f3f5c4b"
 
 # Comptes clients (téléphone + code choisi) et leurs sessions/achats.
-#   npx wrangler kv namespace create COMPTES
 [[kv_namespaces]]
 binding = "COMPTES"
-id = "PLACEHOLDER_KV_ID_COMPTES"
-
-# Comptes clients (téléphone + code choisi) et sessions de connexion :
-#   npx wrangler kv namespace create COMPTES
-[[kv_namespaces]]
-binding = "COMPTES"
-id = "PLACEHOLDER_KV_ID_COMPTES"
+id = "ea76f4a3024c4d56b85cc6b856238e60"
 
 # Mot de passe de l'espace admin, à définir avec :
-#   npx wrangler secret put ADMIN_PASSWORD
+# npx wrangler secret put ADMIN_PASSWORD
 # Ne JAMAIS écrire le vrai mot de passe ici en clair.
