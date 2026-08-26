@@ -14,14 +14,14 @@ binding = "ASSETS"
 #   npx wrangler kv namespace create LICENCES
 [[kv_namespaces]]
 binding = "LICENCES"
-id = "PLACEHOLDER_KV_ID"
+id = "07b95af572d449d4afd0ae5d7f3f5c4b"
 
 # Comptes clients (téléphone + code choisi), leurs sessions/achats, et les
 # messages reçus depuis le formulaire "Nous contacter" (préfixe "msg:") :
 #   npx wrangler kv namespace create COMPTES
 [[kv_namespaces]]
 binding = "COMPTES"
-id = "PLACEHOLDER_KV_ID_COMPTES"
+id = "ea76f4a3024c4d56b85cc6b856238e60"
 
 # Mot de passe de l'espace admin, à définir avec :
 #   npx wrangler secret put ADMIN_PASSWORD
