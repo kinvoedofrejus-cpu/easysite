@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Admin — KINVOS GROUP</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{
+    --ink:#12151C; --muted:#6B7280; --paper:#F3F4FB; --line:#E5E7EB;
+    --blue:#2F5CFF; --blue-deep:#1D3FE0; --purple:#8B4CFF; --purple-deep:#6D28D9;
+    --teal:#00C2D1; --green:#16C172; --green-deep:#0E9F5A; --amber:#FFB020; --red:#E5484D; --red-deep:#C93B40;
+    --grad:linear-gradient(135deg, var(--purple) 0%, var(--blue) 55%, var(--teal) 100%);
+    --display:'Space Grotesk', sans-serif; --sans:'Inter', sans-serif; --mono:'JetBrains Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; font-family:var(--sans); background:var(--paper); color:var(--ink);}
+  h1,h2,h3{font-family:var(--display);}
+  .wrap{max-width:1240px; margin:0 auto; padding:26px 18px 60px;}
+  .sub{color:var(--muted); font-size:13px; margin-bottom:22px;}
+
+  /* Login */
+  #login-screen{min-height:100vh; display:flex; align-items:center; justify-content:center; background:var(--grad); background-size:180% 180%; animation:shift 8s ease infinite; padding:20px;}
+  @keyframes shift{0%{background-position:0% 50%;} 50%{background-position:100% 50%;} 100%{background-position:0% 50%;}}
+  .login-box{width:100%; max-width:360px; background:#fff; border-radius:18px; padding:30px 26px; box-shadow:0 30px 70px rgba(20,20,50,0.35);}
+  .login-box .mark{width:52px; height:52px; border-radius:14px; background:var(--grad); display:flex; align-items:center; justify-content:center; color:#fff; font-size:22px; margin-bottom:14px;}
+  .login-box h1{font-size:19px; margin:0 0 4px;}
+  .login-box input{width:100%; padding:12px 14px; border:1.5px solid var(--line); border-radius:10px; font-size:14px; margin:14px 0 6px; font-family:inherit;}
+  .login-box input:focus{outline:none; border-color:var(--blue);}
+  .login-box button{width:100%; background:var(--grad); color:#fff; border:none; border-radius:10px; padding:12px 16px; font-size:14px; font-weight:700; cursor:pointer; margin-top:6px; box-shadow:0 10px 22px rgba(90,47,204,0.28);}
+  .login-box button:hover{filter:brightness(1.06);}
+  .err{color:var(--red-deep); font-size:12.5px; min-height:16px;}
+
+  /* Top header */
+  .topbar{display:flex; align-items:center; justify-content:space-between; gap:14px; background:var(--grad); background-size:180% 180%; border-radius:18px; padding:20px 24px; color:#fff; box-shadow:0 16px 34px rgba(90,47,204,0.2); margin-bottom:22px; flex-wrap:wrap;}
+  .topbar h1{font-size:20px; margin:0 0 3px; color:#fff;}
+  .topbar .sub{color:rgba(255,255,255,0.85); margin:0;}
+  .topbar-actions{display:flex; gap:8px; flex-wrap:wrap;}
+  .btn{border:none; border-radius:9px; padding:9px 15px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; display:inline-flex; align-items:center; gap:6px;}
+  .btn-ghost-light{background:rgba(255,255,255,0.18); color:#fff;}
+  .btn-ghost-light:hover{background:rgba(255,255,255,0.3);}
+  .btn-primary{background:var(--blue); color:#fff;}
+  .btn-primary:hover{background:var(--blue-deep);}
+  .btn-outline{background:#fff; color:var(--ink); border:1.5px solid var(--line);}
+  .btn-outline:hover{border-color:var(--blue); color:var(--blue);}
+  .btn-danger{background:#FDECEC; color:var(--red-deep);}
+  .btn-danger:hover{background:#FBD8D8;}
+  .btn-success{background:#E4FBF0; color:var(--green-deep);}
+  .btn-success:hover{background:#CFF6E4;}
+  .btn-sm{padding:6px 10px; font-size:12px; border-radius:7px;}
+  .btn:disabled{opacity:.45; cursor:not-allowed;}
+
+  /* Stat cards */
+  .stat-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:14px; margin-bottom:22px;}
+  .stat-card{background:#fff; border-radius:14px; padding:16px 18px; box-shadow:0 8px 22px rgba(20,20,60,0.06); position:relative; overflow:hidden;}
+  .stat-card::before{content:""; position:absolute; top:0; left:0; right:0; height:4px; background:var(--accent, var(--blue));}
+  .stat-card b{display:block; font-size:23px; margin-bottom:2px; font-family:var(--display);}
+  .stat-card span{font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em;}
+
+  /* Tabs */
+  .tabs{display:flex; gap:6px; margin-bottom:16px; background:#fff; padding:6px; border-radius:12px; box-shadow:0 4px 14px rgba(20,20,60,0.05); width:fit-content; flex-wrap:wrap;}
+  .tab-btn{background:none; border:none; padding:9px 16px; font-size:13px; font-weight:700; color:var(--muted); cursor:pointer; border-radius:8px; font-family:inherit;}
+  .tab-btn.active{color:#fff; background:var(--grad);}
+  .tab-btn .badge{background:rgba(0,0,0,0.08); color:inherit; border-radius:999px; padding:1px 7px; font-size:10.5px; margin-left:5px;}
+  .tab-btn.active .badge{background:rgba(255,255,255,0.25);}
+
+  /* Table & panels */
+  .panel{display:none;} .panel.active{display:block;}
+  .filters{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px;}
+  .filters input, .filters select{padding:10px 12px; border:1.5px solid var(--line); border-radius:9px; font-size:13px; font-family:inherit; background:#fff;}
+  .filters input{flex:1; min-width:200px;}
+  .table-wrap{overflow-x:auto; background:#fff; border-radius:14px; box-shadow:0 8px 22px rgba(20,20,60,0.06);}
+  table{width:100%; border-collapse:collapse;}
+  th, td{text-align:left; padding:11px 13px; font-size:12.5px; border-bottom:1px solid var(--line); white-space:nowrap;}
+  th{background:#FAFAFE; font-weight:700; text-transform:uppercase; font-size:10px; letter-spacing:.04em; color:var(--muted); position:sticky; top:0;}
+  tbody tr:hover{background:#FAFAFF;}
+  tbody tr:last-child td{border-bottom:none;}
+  .code{font-family:var(--mono); font-weight:600;}
+  .pill{display:inline-block; padding:3px 9px; border-radius:999px; font-size:10.5px; font-weight:700;}
+  .pill.test{background:#FEF3C7; color:#92400E;}
+  .pill.paye{background:#DCFCE7; color:#166534;}
+  .pill.on{background:#DCFCE7; color:#166534;}
+  .pill.off{background:#FDECEC; color:var(--red-deep);}
+  .pill.sent{background:#DCFCE7; color:#166534;}
+  .pill.notsent{background:#FEF3C7; color:#92400E;}
+  .empty{color:var(--muted); font-size:13px; padding:34px; text-align:center; background:#fff; border-radius:14px; box-shadow:0 8px 22px rgba(20,20,60,0.06);}
+  .row-actions{display:flex; gap:6px; flex-wrap:nowrap;}
+  .msg-text{white-space:normal; max-width:280px;}
+
+  /* Modal */
+  .modal-overlay{position:fixed; inset:0; background:rgba(10,12,30,0.55); backdrop-filter:blur(2px); display:none; align-items:center; justify-content:center; z-index:300; padding:18px;}
+  .modal-overlay.show{display:flex;}
+  .modal-box{background:#fff; border-radius:16px; width:100%; max-width:420px; box-shadow:0 30px 70px rgba(10,12,30,0.35); overflow:hidden;}
+  .modal-head{background:var(--grad); color:#fff; padding:18px 22px;}
+  .modal-head h3{margin:0; font-size:16px;}
+  .modal-body{padding:20px 22px;}
+  .modal-body label{display:block; font-size:12.5px; font-weight:700; margin:12px 0 6px; color:var(--ink);}
+  .modal-body label:first-child{margin-top:0;}
+  .modal-body input, .modal-body select{width:100%; padding:10px 12px; border:1.5px solid var(--line); border-radius:9px; font-size:13.5px; font-family:inherit;}
+  .modal-body input:focus, .modal-body select:focus{outline:none; border-color:var(--blue);}
+  .modal-actions{display:flex; gap:8px; margin-top:20px;}
+  .modal-actions .btn{flex:1; justify-content:center;}
+  .modal-err{color:var(--red-deep); font-size:12px; min-height:16px; margin-top:8px;}
+
+  .toast{position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--grad); color:#fff; padding:13px 20px; border-radius:11px; font-size:13px; font-weight:600; box-shadow:0 20px 40px rgba(0,0,0,0.28); opacity:0; pointer-events:none; transition:opacity .25s, transform .25s; z-index:400; max-width:90vw;}
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  @media (max-width:640px){
+    .topbar{flex-direction:column; align-items:flex-start;}
+    table{font-size:11.5px;}
+  }
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-box">
+    <div class="mark">🔐</div>
+    <h1>Espace admin</h1>
+    <p class="sub">KINVOS GROUP — gestion du hub</p>
+    <input type="password" id="pwd" placeholder="Mot de passe admin" autofocus>
+    <div class="err" id="login-err"></div>
+    <button onclick="seConnecter()">Se connecter</button>
+  </div>
+</div>
+
+<div id="dashboard" style="display:none;">
+  <div class="wrap">
+    <div class="topbar">
+      <div>
+        <h1>Tableau de bord — KINVOS GROUP</h1>
+        <p class="sub">Ventes, licences, comptes clients et messages du Hub.</p>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost-light" onclick="toutRecharger()">↻ Actualiser</button>
+        <button class="btn btn-ghost-light" onclick="seDeconnecterAdmin()">Se déconnecter</button>
+      </div>
+    </div>
+
+    <div class="stat-grid" id="stat-grid"></div>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="licences" onclick="basculerOnglet('licences')">Licences / Ventes</button>
+      <button class="tab-btn" data-tab="comptes" onclick="basculerOnglet('comptes')">Comptes clients</button>
+      <button class="tab-btn" data-tab="messages" onclick="basculerOnglet('messages')">Messages <span class="badge" id="badge-messages">0</span></button>
+    </div>
+
+    <div class="panel active" id="panel-licences">
+      <div class="filters">
+        <input id="f-recherche" placeholder="Rechercher un client, un téléphone, un code..." oninput="rafraichirTableauLicences()">
+        <select id="f-logiciel" onchange="rafraichirTableauLicences()"><option value="">Tous les logiciels</option></select>
+        <select id="f-statut" onchange="rafraichirTableauLicences()">
+          <option value="">Tous les statuts</option>
+          <option value="payé">Payé</option>
+          <option value="test">Test</option>
+        </select>
+        <select id="f-actif" onchange="rafraichirTableauLicences()">
+          <option value="">Actives + désactivées</option>
+          <option value="on">Actives seulement</option>
+          <option value="off">Désactivées seulement</option>
+        </select>
+      </div>
+      <div class="table-wrap" id="contenu-licences"><div class="empty">Chargement…</div></div>
+    </div>
+
+    <div class="panel" id="panel-comptes">
+      <div class="filters">
+        <input id="f-recherche-comptes" placeholder="Rechercher un compte (nom, téléphone)..." oninput="rafraichirTableauComptes()">
+      </div>
+      <div class="table-wrap" id="contenu-comptes"><div class="empty">Chargement…</div></div>
+    </div>
+
+    <div class="panel" id="panel-messages">
+      <div class="filters">
+        <input id="f-recherche-messages" placeholder="Rechercher un message (nom, WhatsApp)..." oninput="rafraichirTableauMessages()">
+      </div>
+      <div class="table-wrap" id="contenu-messages"><div class="empty">Chargement…</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal : renouveler une licence -->
+<div class="modal-overlay" id="modal-renouveler">
+  <div class="modal-box">
+    <div class="modal-head"><h3>↻ Renouveler la licence</h3></div>
+    <div class="modal-body">
+      <p class="sub" id="renouveler-info" style="margin:0 0 4px;"></p>
+      <label>Nouvelle formule</label>
+      <select id="renouveler-plan">
+        <option value="mensuel">Mensuel — 1 600 FCFA</option>
+        <option value="annuel">Annuel — 12 000 FCFA</option>
+        <option value="quinquennal">Quinquennal — 40 000 FCFA</option>
+        <option value="illimite">Illimité — 80 000 FCFA</option>
+      </select>
+      <div class="modal-err" id="renouveler-err"></div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="fermerModal('modal-renouveler')">Annuler</button>
+        <button class="btn btn-primary" onclick="confirmerRenouvellement()">Renouveler</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal : modifier un client -->
+<div class="modal-overlay" id="modal-modifier-client">
+  <div class="modal-box">
+    <div class="modal-head"><h3>✎ Modifier les informations du client</h3></div>
+    <div class="modal-body">
+      <label>Nom complet</label>
+      <input id="modifier-nom" placeholder="Nom complet">
+      <label>E-mail</label>
+      <input id="modifier-email" type="email" placeholder="E-mail">
+      <label>Établissement / Organisation</label>
+      <input id="modifier-org" placeholder="Établissement">
+      <div class="modal-err" id="modifier-err"></div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="fermerModal('modal-modifier-client')">Annuler</button>
+        <button class="btn btn-primary" onclick="confirmerModificationClient()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let motDePasse = '';
+let toutesLicences = [];
+let tousComptes = [];
+let tousMessages = [];
+let licenceEnCours = null; // pour le modal renouveler
+let telephoneEnCours = null; // pour le modal modifier client
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer = setTimeout(()=>t.classList.remove('show'), 3200);
+}
+function ouvrirModal(id){ document.getElementById(id).classList.add('show'); }
+function fermerModal(id){ document.getElementById(id).classList.remove('show'); }
+
+async function seConnecter(){
+  const pwd = document.getElementById('pwd').value;
+  const errEl = document.getElementById('login-err');
+  errEl.textContent = '';
+  try{
+    const res = await fetch('/api/admin/verifier', { method:'POST', headers:{'X-Admin-Password': pwd} });
+    const data = await res.json();
+    if(!data.ok){ errEl.textContent = 'Mot de passe incorrect.'; return; }
+    motDePasse = pwd;
+    sessionStorage.setItem('kinvos_admin_pwd', pwd);
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    toutRecharger();
+  }catch(e){
+    errEl.textContent = "Erreur de connexion au serveur.";
+  }
+}
+
+function seDeconnecterAdmin(){
+  sessionStorage.removeItem('kinvos_admin_pwd');
+  motDePasse = '';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('dashboard').style.display = 'none';
+}
+
+function basculerOnglet(tab){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+tab).classList.add('active');
+}
+
+async function toutRecharger(){
+  await Promise.all([chargerLicences(), chargerComptes(), chargerMessages()]);
+  calculerStats();
+}
+
+function gererSession401(res){
+  if(res.status === 401){
+    sessionStorage.removeItem('kinvos_admin_pwd');
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('dashboard').style.display = 'none';
+    return true;
+  }
+  return false;
+}
+function enteteAuth(){ return {'X-Admin-Password': motDePasse}; }
+function enteteAuthJson(){ return {'X-Admin-Password': motDePasse, 'Content-Type':'application/json'}; }
+
+/* ===== Licences ===== */
+async function chargerLicences(){
+  const contenu = document.getElementById('contenu-licences');
+  try{
+    const res = await fetch('/api/admin/licences', { headers: enteteAuth() });
+    if(gererSession401(res)) return;
+    const data = await res.json();
+    toutesLicences = data.licences || [];
+    const select = document.getElementById('f-logiciel');
+    const valeurActuelle = select.value;
+    const logiciels = [...new Set(toutesLicences.map(l=>l.softwareId))].sort();
+    select.innerHTML = '<option value="">Tous les logiciels</option>' + logiciels.map(id=>`<option value="${id}">${id}</option>`).join('');
+    select.value = valeurActuelle;
+    rafraichirTableauLicences();
+  }catch(e){
+    contenu.innerHTML = '<div class="empty">Erreur de chargement.</div>';
+  }
+}
+
+function rafraichirTableauLicences(){
+  const contenu = document.getElementById('contenu-licences');
+  const recherche = (document.getElementById('f-recherche').value || '').toLowerCase();
+  const logicielFiltre = document.getElementById('f-logiciel').value;
+  const statutFiltre = document.getElementById('f-statut').value;
+  const actifFiltre = document.getElementById('f-actif').value;
+
+  let liste = toutesLicences;
+  if(logicielFiltre) liste = liste.filter(l=>l.softwareId===logicielFiltre);
+  if(statutFiltre) liste = liste.filter(l=>l.statut===statutFiltre);
+  if(actifFiltre === 'on') liste = liste.filter(l=>l.actif !== false);
+  if(actifFiltre === 'off') liste = liste.filter(l=>l.actif === false);
+  if(recherche) liste = liste.filter(l =>
+    (l.clientNom||'').toLowerCase().includes(recherche) ||
+    (l.clientTelephone||'').toLowerCase().includes(recherche) ||
+    (l.code||'').toLowerCase().includes(recherche) ||
+    (l.factureNumero||'').toLowerCase().includes(recherche)
+  );
+
+  if(toutesLicences.length === 0){
+    contenu.innerHTML = '<div class="empty">Aucune licence générée pour le moment.</div>';
+    return;
+  }
+  if(liste.length === 0){
+    contenu.innerHTML = '<div class="empty">Aucun résultat pour ces filtres.</div>';
+    return;
+  }
+  contenu.innerHTML = `<table><thead><tr>
+    <th>N° facture</th><th>Date</th><th>Logiciel</th><th>Formule</th><th>Montant</th><th>Code</th><th>Client</th><th>Statut</th><th>Actif</th><th>Actions</th>
+  </tr></thead><tbody>${liste.map(l => `
+    <tr>
+      <td class="code">${l.factureNumero || '—'}</td>
+      <td>${new Date(l.creeLe).toLocaleDateString('fr-FR')}</td>
+      <td>${l.softwareId}</td>
+      <td>${l.planId}</td>
+      <td>${l.prix != null ? l.prix.toLocaleString('fr-FR')+' FCFA' : '—'}</td>
+      <td class="code">${l.code}</td>
+      <td>${l.clientNom || '—'}${l.clientTelephone ? ' · '+l.clientTelephone : ''}</td>
+      <td><span class="pill ${l.statut==='payé'?'paye':'test'}">${l.statut}</span></td>
+      <td><span class="pill ${l.actif!==false?'on':'off'}">${l.actif!==false?'Active':'Désactivée'}</span></td>
+      <td>
+        <div class="row-actions">
+          ${l.actif!==false
+            ? `<button class="btn btn-sm btn-danger" onclick="basculerActifLicence('${l.id}', false)">⛔ Désactiver</button>`
+            : `<button class="btn btn-sm btn-success" onclick="basculerActifLicence('${l.id}', true)">✅ Activer</button>`}
+          <button class="btn btn-sm btn-outline" onclick="ouvrirRenouveler('${l.id}')">↻ Renouveler</button>
+          <button class="btn btn-sm btn-outline" onclick='telechargerFactureAdmin(${JSON.stringify(l).replace(/'/g,"&#39;")})'>⬇ Facture</button>
+        </div>
+      </td>
+    </tr>`).join('')}</tbody></table>`;
+}
+
+async function basculerActifLicence(id, actif){
+  if(!confirm(actif ? "Réactiver cette licence ?" : "Désactiver cette licence ? Le client perdra l'accès jusqu'à réactivation ou renouvellement.")) return;
+  try{
+    const res = await fetch('/api/admin/licence/actif', { method:'POST', headers: enteteAuthJson(), body: JSON.stringify({ id, actif }) });
+    const data = await res.json();
+    if(!data.ok){ showToast(data.error || "Échec de l'opération."); return; }
+    showToast(actif ? 'Licence réactivée.' : 'Licence désactivée.');
+    await chargerLicences(); calculerStats();
+  }catch(e){ showToast('Erreur de connexion.'); }
+}
+
+function ouvrirRenouveler(id){
+  licenceEnCours = toutesLicences.find(l=>l.id===id);
+  if(!licenceEnCours) return;
+  document.getElementById('renouveler-info').textContent = `${licenceEnCours.softwareId} — ${licenceEnCours.clientNom || licenceEnCours.clientTelephone || 'client'}`;
+  document.getElementById('renouveler-plan').value = licenceEnCours.planId || 'annuel';
+  document.getElementById('renouveler-err').textContent = '';
+  ouvrirModal('modal-renouveler');
+}
+async function confirmerRenouvellement(){
+  if(!licenceEnCours) return;
+  const planId = document.getElementById('renouveler-plan').value;
+  try{
+    const res = await fetch('/api/admin/licence/renouveler', { method:'POST', headers: enteteAuthJson(), body: JSON.stringify({ id: licenceEnCours.id, planId }) });
+    const data = await res.json();
+    if(!data.ok){ document.getElementById('renouveler-err').textContent = data.error || 'Échec du renouvellement.'; return; }
+    fermerModal('modal-renouveler');
+    showToast('Licence renouvelée avec succès.');
+    await chargerLicences(); calculerStats();
+  }catch(e){ document.getElementById('renouveler-err').textContent = 'Erreur de connexion.'; }
+}
+
+function telechargerFactureAdmin(l){
+  const { jsPDF } = window.jspdf || {};
+  if(!jsPDF){ showToast('Impossible de générer le PDF pour le moment.'); return; }
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  const dateTxt = l.creeLe ? new Date(l.creeLe).toLocaleDateString('fr-FR') : new Date().toLocaleDateString('fr-FR');
+  const montantTxt = l.prix != null ? `${l.prix.toLocaleString('fr-FR')} FCFA` : '—';
+
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(18);
+  doc.text('KINVOS GROUP SARL', 15, 20);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
+  doc.text('contact@kinvosgroup.com — WhatsApp +229 66 66 18 46', 15, 27);
+
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(14);
+  doc.text('QUITTANCE / FACTURE', 15, 42);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(11);
+  doc.text(`N° : ${l.factureNumero||'—'}`, 15, 50);
+  doc.text(`Date : ${dateTxt}`, 15, 56);
+
+  doc.setFont('helvetica', 'bold'); doc.text('Client', 15, 70);
+  doc.setFont('helvetica', 'normal');
+  doc.text(String(l.clientNom || '—'), 15, 76);
+  doc.text(String(l.clientTelephone || '—'), 15, 81);
+
+  doc.setDrawColor(200); doc.line(15, 90, 195, 90);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Logiciel', 15, 98); doc.text('Formule', 90, 98); doc.text('Statut', 130, 98); doc.text('Montant', 170, 98);
+  doc.setFont('helvetica', 'normal');
+  doc.text(String(l.softwareId||'—'), 15, 105); doc.text(String(l.planId||'—'), 90, 105); doc.text(String(l.statut||'—'), 130, 105); doc.text(montantTxt, 170, 105);
+  doc.line(15, 112, 195, 112);
+
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(12);
+  doc.text(`Total : ${montantTxt}`, 15, 122);
+
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
+  doc.text(`Code de licence : ${l.code||'—'}`, 15, 132);
+
+  doc.setFontSize(8.5); doc.setTextColor(120);
+  doc.text("Cette quittance atteste du paiement de la licence indiquée ci-dessus, pour le logiciel et la formule mentionnés.", 15, 150);
+  doc.text("KINVOS GROUP SARL — Les Logiciels Easy", 15, 155);
+
+  doc.save(`quittance-${(l.factureNumero||'kinvos').replace(/[^a-z0-9-]/gi,'')}.pdf`);
+}
+
+/* ===== Comptes clients ===== */
+async function chargerComptes(){
+  const contenu = document.getElementById('contenu-comptes');
+  try{
+    const res = await fetch('/api/admin/comptes', { headers: enteteAuth() });
+    if(gererSession401(res)) return;
+    const data = await res.json();
+    tousComptes = data.comptes || [];
+    rafraichirTableauComptes();
+  }catch(e){
+    contenu.innerHTML = '<div class="empty">Erreur de chargement.</div>';
+  }
+}
+
+function rafraichirTableauComptes(){
+  const contenu = document.getElementById('contenu-comptes');
+  const recherche = (document.getElementById('f-recherche-comptes').value || '').toLowerCase();
+  let liste = tousComptes;
+  if(recherche) liste = liste.filter(c =>
+    (c.nom||'').toLowerCase().includes(recherche) || (c.telephone||'').toLowerCase().includes(recherche)
+  );
+
+  if(tousComptes.length === 0){
+    contenu.innerHTML = '<div class="empty">Aucun compte créé pour le moment.</div>';
+    return;
+  }
+  if(liste.length === 0){
+    contenu.innerHTML = '<div class="empty">Aucun résultat pour cette recherche.</div>';
+    return;
+  }
+  contenu.innerHTML = `<table><thead><tr>
+    <th>Créé le</th><th>Nom</th><th>Téléphone</th><th>E-mail</th><th>Établissement</th><th>Logiciels achetés</th><th>Actions</th>
+  </tr></thead><tbody>${liste.map(c => `
+    <tr>
+      <td>${c.creeLe ? new Date(c.creeLe).toLocaleDateString('fr-FR') : '—'}</td>
+      <td>${c.nom || '—'}</td>
+      <td>${c.telephone || '—'}</td>
+      <td>${c.email || '—'}</td>
+      <td>${c.org || '—'}</td>
+      <td>${(c.purchases||[]).length}</td>
+      <td><button class="btn btn-sm btn-outline" onclick='ouvrirModifierClient(${JSON.stringify(c).replace(/'/g,"&#39;")})'>✎ Modifier</button></td>
+    </tr>`).join('')}</tbody></table>`;
+}
+
+function ouvrirModifierClient(c){
+  telephoneEnCours = c.telephone;
+  document.getElementById('modifier-nom').value = c.nom || '';
+  document.getElementById('modifier-email').value = c.email || '';
+  document.getElementById('modifier-org').value = c.org || '';
+  document.getElementById('modifier-err').textContent = '';
+  ouvrirModal('modal-modifier-client');
+}
+async function confirmerModificationClient(){
+  if(!telephoneEnCours) return;
+  const nom = document.getElementById('modifier-nom').value.trim();
+  const email = document.getElementById('modifier-email').value.trim();
+  const org = document.getElementById('modifier-org').value.trim();
+  try{
+    const res = await fetch('/api/admin/compte/modifier', { method:'POST', headers: enteteAuthJson(), body: JSON.stringify({ telephone: telephoneEnCours, nom, email, org }) });
+    const data = await res.json();
+    if(!data.ok){ document.getElementById('modifier-err').textContent = data.error || 'Échec de la modification.'; return; }
+    fermerModal('modal-modifier-client');
+    showToast('Informations du client mises à jour.');
+    await chargerComptes(); await chargerLicences();
+  }catch(e){ document.getElementById('modifier-err').textContent = 'Erreur de connexion.'; }
+}
+
+/* ===== Messages du formulaire "Nous contacter" ===== */
+async function chargerMessages(){
+  const contenu = document.getElementById('contenu-messages');
+  try{
+    const res = await fetch('/api/admin/messages', { headers: enteteAuth() });
+    if(gererSession401(res)) return;
+    const data = await res.json();
+    tousMessages = data.messages || [];
+    document.getElementById('badge-messages').textContent = tousMessages.length;
+    rafraichirTableauMessages();
+  }catch(e){
+    contenu.innerHTML = '<div class="empty">Erreur de chargement.</div>';
+  }
+}
+
+function rafraichirTableauMessages(){
+  const contenu = document.getElementById('contenu-messages');
+  const recherche = (document.getElementById('f-recherche-messages').value || '').toLowerCase();
+  let liste = tousMessages;
+  if(recherche) liste = liste.filter(m =>
+    (m.nom||'').toLowerCase().includes(recherche) || (m.whatsapp||'').toLowerCase().includes(recherche)
+  );
+
+  if(tousMessages.length === 0){
+    contenu.innerHTML = '<div class="empty">Aucun message reçu pour le moment.</div>';
+    return;
+  }
+  if(liste.length === 0){
+    contenu.innerHTML = '<div class="empty">Aucun résultat pour cette recherche.</div>';
+    return;
+  }
+  contenu.innerHTML = `<table><thead><tr>
+    <th>Date</th><th>Nom</th><th>WhatsApp</th><th>E-mail</th><th>Logiciel</th><th>Message</th><th>Envoi WhatsApp</th><th>Actions</th>
+  </tr></thead><tbody>${liste.map(m => `
+    <tr>
+      <td>${m.creeLe ? new Date(m.creeLe).toLocaleString('fr-FR') : '—'}</td>
+      <td>${m.nom || '—'}</td>
+      <td>${m.whatsapp ? '+'+m.whatsapp : '—'}</td>
+      <td>${m.email || '—'}</td>
+      <td>${m.logiciel || '—'}</td>
+      <td class="msg-text">${(m.message || '—').replace(/</g,'&lt;')}</td>
+      <td><span class="pill ${m.envoyeWhatsApp?'sent':'notsent'}">${m.envoyeWhatsApp ? '✅ Envoyé' : '⚠️ Non envoyé'}</span></td>
+      <td>${m.whatsapp ? `<a class="btn btn-sm btn-outline" href="https://wa.me/${m.whatsapp}" target="_blank" rel="noopener">💬 Répondre</a>` : ''}</td>
+    </tr>`).join('')}</tbody></table>`;
+}
+
+/* ===== Statistiques ===== */
+function calculerStats(){
+  const el = document.getElementById('stat-grid');
+  const nbLicences = toutesLicences.length;
+  const nbActives = toutesLicences.filter(l=>l.actif!==false).length;
+  const nbComptes = tousComptes.length;
+  const revenuTotal = toutesLicences.reduce((s,l)=>s+(l.prix||0), 0);
+  const debutMois = new Date(); debutMois.setDate(1); debutMois.setHours(0,0,0,0);
+  const ventesCeMois = toutesLicences.filter(l=>new Date(l.creeLe) >= debutMois).length;
+  const messagesNonEnvoyes = tousMessages.filter(m=>!m.envoyeWhatsApp).length;
+  el.innerHTML = `
+    <div class="stat-card" style="--accent:var(--blue);"><b>${revenuTotal.toLocaleString('fr-FR')} FCFA</b><span>Revenu total</span></div>
+    <div class="stat-card" style="--accent:var(--purple);"><b>${nbLicences}</b><span>Licences générées</span></div>
+    <div class="stat-card" style="--accent:var(--green);"><b>${nbActives}</b><span>Licences actives</span></div>
+    <div class="stat-card" style="--accent:var(--teal);"><b>${nbComptes}</b><span>Comptes clients</span></div>
+    <div class="stat-card" style="--accent:var(--amber);"><b>${ventesCeMois}</b><span>Ventes ce mois-ci</span></div>
+    <div class="stat-card" style="--accent:var(--red);"><b>${messagesNonEnvoyes}</b><span>Messages à traiter</span></div>
+  `;
+}
+
+// Reprend la session si déjà connecté dans cet onglet
+const dejaConnecte = sessionStorage.getItem('kinvos_admin_pwd');
+if(dejaConnecte){
+  motDePasse = dejaConnecte;
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  toutRecharger();
+}
+</script>
+</body>
+</html>
